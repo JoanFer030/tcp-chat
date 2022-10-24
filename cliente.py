@@ -7,7 +7,6 @@ class ClientChat:
     def __init__(self, server_name, server_port):
         self.cs = socket(AF_INET, SOCK_STREAM)
         self.cs.connect((server_name, server_port))
-        self.stop = True
 
     def set_nick(self):
         prov_nick = "/nick" + input("Introduzca nombre de usuario: ")
@@ -22,22 +21,22 @@ class ClientChat:
             self.set_nick()
 
     def send_message(self):
-        while self.stop:
+        while True:
             msg = input("")
             if msg == "/exit":
                 self.exit()
-                self.stop = False
                 break
             self.cs.send(msg.encode())
 
     def receive_messages(self):
-        while self.stop:
+        while True:
             message = self.cs.recv(1024).decode()
             print(message)
 
     def exit(self):
-        print("Saliste del Chat")
         self.cs.close()
+        os.system("cls||clear")
+        print("Saliste del Chat")
 
 
 while True:
@@ -47,13 +46,12 @@ while True:
         port = int(input("Introducir puerto del chat: "))
         chat = ClientChat(ip, port)
         print("Entrando al chat...")
-        sleep(2)
+        sleep(1)
         chat.set_nick()
         break
     except:
         print("IP o puerto erroneos.")
         sleep(3)
-
 
 receive_thread = Thread(target=chat.receive_messages)
 receive_thread.start()
