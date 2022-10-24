@@ -7,7 +7,8 @@ class ClientChat:
     def __init__(self, server_name, server_port):
         self.cs = socket(AF_INET, SOCK_STREAM)
         self.cs.connect((server_name, server_port))
-
+        self.stop = True
+        
     def set_nick(self):
         prov_nick = "/nick" + input("Introduzca nombre de usuario: ")
         self.cs.send(prov_nick.encode())
@@ -21,21 +22,25 @@ class ClientChat:
             self.set_nick()
 
     def send_message(self):
-        while True:
+        while self.stop:
             msg = input("")
             if msg == "/exit":
                 self.exit()
+                self.stop = False
                 break
             self.cs.send(msg.encode())
 
     def receive_messages(self):
-        while True:
+        while self.stop:
             message = self.cs.recv(1024).decode()
+            if message == "/kick":
+                self.exit()
+                self.stop = False
+                break
             print(message)
 
     def exit(self):
-        self.cs.close()
-        os.system("cls||clear")
+        self.cs.send("/exit".encode())
         print("Saliste del Chat")
 
 
