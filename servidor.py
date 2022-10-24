@@ -10,7 +10,8 @@ class ServerChat:
             "/users" : "lista los usuarios actuales",
             "/kick <user>" : "expulsa al usuario, user, del chat",
             "/info" : "información del servidor",
-            "/msg" : "enviar mensaje"
+            "/msg" : "enviar mensaje",
+            "/key" : "clave de encriptado"
         }
         self.chat_name = "Prueba de chat TCP"
         self.server_socket = socket(AF_INET,SOCK_STREAM)
@@ -92,7 +93,6 @@ class ServerChat:
             elif command.startswith("/kick"):
                 nick = command[6:]
                 exists = False
-                print("\n")
                 for client, info in self.users.items():
                     if nick == info[0]:
                         exists = True
@@ -126,6 +126,10 @@ class ServerChat:
                 msg = command[4:]
                 msg = "server> " + msg
                 self.send_to_all(msg)
+            elif command == "/key":
+                print("\nClave de encriptado")
+                print("-"*50)
+                print(self.key.decode())
             else:
                 print("server> Comando no existente")
             
