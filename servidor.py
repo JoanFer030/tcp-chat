@@ -6,13 +6,6 @@ from cryptography.fernet import Fernet
 class ServerChat:
     def __init__(self, server_ip="", server_port=12000):
         self.users = {}
-        self.commands_dict = {
-            "/users" : "lista los usuarios actuales",
-            "/kick <user>" : "expulsa al usuario, user, del chat",
-            "/info" : "información del servidor",
-            "/msg" : "enviar mensaje",
-            "/key" : "clave de encriptado"
-        }
         self.chat_name = "Prueba de chat TCP"
         self.server_socket = socket(AF_INET,SOCK_STREAM)
         self.server_socket.bind((server_ip, server_port))
@@ -81,6 +74,13 @@ class ServerChat:
                 break
 
     def commands(self):
+        commands_dict = {
+            "/users" : "lista los usuarios actuales",
+            "/kick <user>" : "expulsa al usuario, user, del chat",
+            "/info" : "información del servidor",
+            "/msg" : "enviar mensaje",
+            "/key" : "clave de encriptado"
+        }
         while True:
             command = input("")
             if command == "/users":
@@ -105,7 +105,7 @@ class ServerChat:
             elif command == "/help":
                 print("\nComando", " "*8, "Descripción")
                 print("-"*50)
-                for name, description in self.commands_dict.items():
+                for name, description in commands_dict.items():
                     n = 15-len(name)
                     print(name, " "*n, description)
                 print("\n")
@@ -130,6 +130,7 @@ class ServerChat:
                 print("\nClave de encriptado")
                 print("-"*50)
                 print(self.key.decode())
+                print("\n")
             else:
                 print("server> Comando no existente")
             

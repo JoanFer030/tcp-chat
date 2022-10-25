@@ -36,8 +36,9 @@ class ClientChat:
         server_ans = self.decrypt_msg(server_ans).split("-")
         if server_ans[0] == "OK":
             os.system("cls||clear")
-            print(server_ans[1])
-            print("-"*len(server_ans[1]))
+            n = 50 - len(server_ans[1])
+            print(server_ans[1]," "*n, "Usuario: ", prov_nick[5:])
+            print("-"*70)
         else:
             print("Nombre de usuario ya existente.")
             self.set_nick()
