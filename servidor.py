@@ -33,44 +33,46 @@ class ServerChat:
             if client != cs:
                 client.send(self.encrypt_msg(msg))
 
+    def set_nick(self, connection_socket, address):
+        msg = self.decrypt_msg(connection_socket.recv(1024))
+        nick = msg
+        if nick not in self.users.values():
+            self.users[connection_socket] = (nick, address)
+            connection_socket.send(self.encrypt_msg(f"OK-Bienvenido a {self.chat_name}"))
+            self.send_to_all(f"server> Nuevo usuario '{nick}'", connection_socket)
+            print(f"server> Nuevo usuario con dirección: {address[0]} y nick: {nick}")
+        elif nick in self.users.values():
+            connection_socket.send(self.encrypt_msg("NO"))
+
+    def exit(self, connection_socket):
+        msg = f"> {self.users[connection_socket]} abandono el chat"
+        print(msg)
+        msg = f"> {self.users[connection_socket][0]} abandono el chat"
+        self.send_to_all(msg, connection_socket)
+        connection_socket.close()
+        del self.users[connection_socket]
+
     def welcome(self):
         while True:
             connection_socket, address = self.server_socket.accept()
             self.send_key(connection_socket)
-            listen_thread = Thread(target=self.listen, args=(connection_socket, address))
+            self.set_nick(connection_socket, address)
+            listen_thread = Thread(target=self.listen, args=(connection_socket, ))
             listen_thread.start()
 
-    def listen(self, connection_socket, address):
+    def listen(self, connection_socket):
         while True:
             try:
                 msg = self.decrypt_msg(connection_socket.recv(1024))
-                if msg.startswith("/nick") and msg[5:] not in self.users.values():
-                    nick = msg[5:]
-                    self.users[connection_socket] = (nick, address)
-                    connection_socket.send(self.encrypt_msg(f"OK-Bienvenido a {self.chat_name}"))
-                    self.send_to_all(f"server> Nuevo usuario '{nick}'", connection_socket)
-                    print(f"server> Nuevo usuario con dirección: {address[0]} y nick: {nick}")
-                elif msg.startswith("/nick") and msg[5:] in self.users.values():
-                    connection_socket.send(self.encrypt_msg("NO"))
-                elif msg == "/exit":
-                    msg = f"> {self.users[connection_socket]} abandono el chat"
-                    print(msg)
-                    msg = f"> {self.users[connection_socket][0]} abandono el chat"
-                    self.send_to_all(msg, connection_socket)
-                    connection_socket.close()
-                    del self.users[connection_socket]
+                if msg == "/exit":
+                    self.exit(connection_socket)
                     break
                 else:
                     msg = "> " + self.users[connection_socket][0] + ": " + msg
                     print(msg)
                     self.send_to_all(msg, connection_socket)
             except:
-                msg = f"> {self.users[connection_socket]} abandono el chat"
-                print(msg)
-                msg = f"> {self.users[connection_socket][0]} abandono el chat"
-                self.send_to_all(msg, connection_socket)
-                connection_socket.close()
-                del self.users[connection_socket]
+                self.exit(connection_socket)
                 break
 
     def commands(self):

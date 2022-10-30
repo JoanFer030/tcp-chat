@@ -30,7 +30,7 @@ class ClientChat:
                 print("Clave de encriptado no recibida correctamente.")
         
     def set_nick(self):
-        prov_nick = "/nick" + input("Introduzca nombre de usuario: ")
+        prov_nick = input("Introduzca nombre de usuario: ")
         self.cs.send(self.encrypt_msg(prov_nick))
         server_ans = self.cs.recv(1024)
         server_ans = self.decrypt_msg(server_ans).split("-")
@@ -47,9 +47,13 @@ class ClientChat:
         while self.stop:
             msg = input("")
             if msg == "/exit":
-                self.exit()
-                self.stop = False
-                break
+                check = input("Seguro que desea abandonar el chat, se borrarán todos los mensajes, (0/1): ")
+                if check == "1":
+                    self.exit()
+                    self.stop = False
+                    break
+                else:
+                    continue
             self.cs.send(self.encrypt_msg(msg))
 
     def receive_messages(self):
@@ -64,6 +68,7 @@ class ClientChat:
 
     def exit(self):
         self.cs.send(self.encrypt_msg("/exit"))
+        os.system("cls||clear")
         print("Saliste del Chat")
 
 
